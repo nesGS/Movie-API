@@ -55,6 +55,7 @@ public class MovieController {
         return ResponseEntity.ok(savedMovie);
     }
 
+    // Método para valorar una película
     @GetMapping("/vote/{id}/{rating}")
     public ResponseEntity<Movie> voteMovie(@PathVariable Long id, @PathVariable double rating) {
         if(!movieRepository.existsById(id)) {

@@ -3,13 +3,13 @@ package com.nesGS.movies.models;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "movies")
+@Table//(name = "movies")
 public class Movie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
-    private int year;
+    private int releaseYear;
     private int votes;
     private double rating;
     @Column(name = "image_url")
@@ -29,11 +29,11 @@ public class Movie {
     public void setTitle(String title) {
         this.title = title;
     }
-    public int getYear() {
-        return year;
+    public int getReleaseYear() {
+        return releaseYear;
     }
-    public void setYear(int year) {
-        this.year = year;
+    public void setReleaseYear(int releaseYear) {
+        this.releaseYear = releaseYear;
     }
     public int getVotes() {
         return votes;
