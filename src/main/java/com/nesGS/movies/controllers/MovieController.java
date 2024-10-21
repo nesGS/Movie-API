@@ -1,7 +1,7 @@
 package com.nesGS.movies.controllers;
 
 import com.nesGS.movies.models.Movie;
-import com.nesGS.movies.repositories.MovieRepository;
+import com.nesGS.movies.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ import java.util.Optional;
 public class MovieController {
 
     @Autowired
-    private MovieRepository movieRepository;
+    private MovieService movieServ;
 
     @GetMapping
     public List<Movie> getAllMovies() {
@@ -59,14 +59,17 @@ public class MovieController {
     // Método para valorar una película
     @GetMapping("/vote/{id}/{rating}")
     public ResponseEntity<Movie> voteMovie(@PathVariable Long id, @PathVariable double rating) {
+        // Verifica si la película existe
         if(!movieRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
+        // Recupera la película y calcula el nuevo rating
         Optional<Movie> optional = movieRepository.findById(id);
         Movie movie = optional.get();
 
         double newRating = ((movie.getVotes() * movie.getRating()) + rating) / (movie.getVotes() + 1);
 
+        // Actualiza la película y guarda los cambios
         movie.setVotes(movie.getVotes() + 1);
         movie.setRating(newRating);
 
