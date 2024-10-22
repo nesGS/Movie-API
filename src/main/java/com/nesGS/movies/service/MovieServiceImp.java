@@ -4,7 +4,6 @@ import com.nesGS.movies.models.Movie;
 import com.nesGS.movies.repositories.MovieRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -52,36 +51,20 @@ public class MovieServiceImp implements MovieService {
 
     @Override
     public Optional<Movie> voteMovie(Long id, double rating) {
-        if (!movieRepository.existsById(id)) {
-            return Optional.empty();
-        }
+        return movieRepository.findById(id).map(movie -> {
+            // Fórmula para calcular la nueva valoración
+            double newRating = ((movie.getVotes() * movie.getRating()) + rating) / (movie.getVotes() + 1);
 
-        Optional<Movie> optional = movieRepository.findById(id);
-        Movie movie = optional.get();
+            // Actualiza la película con la valoración añadida
+            movie.setVotes(movie.getVotes() + 1);
+            movie.setRating(newRating);
 
-        double newRating = ((movie.getVotes() * movie.getRating()) + rating) / (movie.getVotes() + 1);
-
-        // Actualiza la película y guarda los cambios
-        movie.setVotes(movie.getVotes() + 1);
-        movie.setRating(newRating);
-
-        Movie savedMovie = movieRepository.save(movie);
-        return Optional.of(savedMovie);
+            Movie savedMovie = movieRepository.save(movie);
+            return savedMovie;
+        });
     }
+
 }
 
 
 
-@Override
-public Optional<Movie> voteMovie(Long id, double rating) {
-    return movieRepository.findById(id).map(movie -> {
-        double newRating = ((movie.getVotes() * movie.getRating()) + rating) / (movie.getVotes() + 1);
-
-        // Actualiza la película y guarda los cambios
-        movie.setVotes(movie.getVotes() + 1);
-        movie.setRating(newRating);
-
-        Movie savedMovie = movieRepository.save(movie);
-        return savedMovie;
-    });
-}

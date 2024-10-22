@@ -52,7 +52,7 @@ public class MovieController {
     }
 
 
-    // Método para valorar una película
+    // Endpoint para valorar una película de la DB
     @GetMapping("/vote/{id}/{rating}")
     public ResponseEntity<Movie> voteMovie(@PathVariable Long id, @PathVariable double rating) {
         Optional<Movie> ratedMovie = movieService.voteMovie(id, rating);
