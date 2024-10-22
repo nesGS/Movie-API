@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @CrossOrigin(origins = "*")  // Se regula los dominios que pueden acceder ("*" permite cualquiera)
@@ -16,65 +15,51 @@ import java.util.Optional;
 public class MovieController {
 
     @Autowired
-    private MovieService movieServ;
+    private MovieService movieService;
 
     @GetMapping
-    public List<Movie> getAllMovies() {
-        return movieRepository.findAll();
+    public Iterable<Movie> getAllMovies() {
+        return movieService.getAllMovies();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
-        Optional<Movie> movie = movieRepository.findById(id);
-        return movie.map(ResponseEntity::ok)  // if (movie.isPresent()) { return ResponseEntity.ok(movie.get()); }
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+        return movieService.getMovieById(id)
+                .map(ResponseEntity::ok) // Si está presente, devuelve 200 OK
+                .orElseGet(() -> ResponseEntity.notFound().build()); // Si no, 404 Not Found
     }
 
     @PostMapping
     public ResponseEntity<Movie> createMovie(@RequestBody Movie movie) {
-        Movie savedMovie = movieRepository.save(movie);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedMovie);
+        Optional<Movie> savedMovie = movieService.createMovie(movie);
+        return savedMovie
+                .map(m -> ResponseEntity.status(HttpStatus.CREATED).body(m))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
-        if(!movieRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        movieRepository.deleteById(id);
+        movieService.deleteMovie(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Movie> updateMovie(@PathVariable Long id, @RequestBody Movie updatedMovie) {
-        if(!movieRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        updatedMovie.setId(id);
-        Movie savedMovie = movieRepository.save(updatedMovie);
-        return ResponseEntity.ok(savedMovie);
+        Optional<Movie> savedMovie = movieService.updateMovie(id, updatedMovie);
+
+        return savedMovie.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 
     // Método para valorar una película
     @GetMapping("/vote/{id}/{rating}")
     public ResponseEntity<Movie> voteMovie(@PathVariable Long id, @PathVariable double rating) {
-        // Verifica si la película existe
-        if(!movieRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        // Recupera la película y calcula el nuevo rating
-        Optional<Movie> optional = movieRepository.findById(id);
-        Movie movie = optional.get();
+        Optional<Movie> ratedMovie = movieService.voteMovie(id, rating);
 
-        double newRating = ((movie.getVotes() * movie.getRating()) + rating) / (movie.getVotes() + 1);
-
-        // Actualiza la película y guarda los cambios
-        movie.setVotes(movie.getVotes() + 1);
-        movie.setRating(newRating);
-
-        Movie savedMovie = movieRepository.save(movie);
-        return ResponseEntity.ok(savedMovie);
+        return ratedMovie.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
 }
 
