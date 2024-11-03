@@ -1,5 +1,6 @@
 package com.nesGS.movies.controllers;
 
+import com.nesGS.movies.exceptions.MovieNotFoundException;
 import com.nesGS.movies.models.Movie;
 import com.nesGS.movies.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +23,12 @@ public class MovieController {
         return movieService.getAllMovies();
     }
 
+    // El método devuelve una película por su ID. Si no se encuentra, lanza una excepción MovieNotFoundException.
     @GetMapping("/{id}")
     public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
-        return movieService.getMovieById(id)
-                .map(ResponseEntity::ok) // Si está presente, devuelve 200 OK
-                .orElseGet(() -> ResponseEntity.notFound().build()); // Si no, 404 Not Found
+        Movie movie = movieService.getMovieById(id)
+                .orElseThrow(() -> new MovieNotFoundException("Movie with ID " + id + " not found"));
+        return ResponseEntity.ok(movie);
     }
 
     @PostMapping
