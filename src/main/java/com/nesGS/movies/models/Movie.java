@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.URL;
 
 @Getter
 @Setter
@@ -15,8 +14,8 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Title is mandatory")
-    @Size(max = 100, message = "Title must not exceed 100 characters")
+    @NotNull(message = "Title cannot be null")
+    @Size(min = 1, max = 100, message = "Title must not exceed 100 characters")
     private String title;
 
     @Min(value = 1888, message = "Release year must be no earlier than 1888") // First year of film creation
@@ -30,7 +29,7 @@ public class Movie {
     @DecimalMax(value = "10.0", message = "Rating must not exceed 10.0")
     private double rating;
 
-    @URL(message = "Image URL must be valid")
+//    @URL(message = "Image URL must be valid")
     private String imageUrl;
 
 }
