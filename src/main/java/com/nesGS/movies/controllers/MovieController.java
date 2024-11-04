@@ -60,32 +60,40 @@ public class MovieController {
 
     //-----------------------------------------------------------------
 
+    // El método comprueba si la película existe y la elimina de la DB. Si no se encuentra,
+    //  lanza una excepción MovieNotFoundException.
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
+        Movie movie = movieService.getMovieById(id)
+                .orElseThrow(() -> new MovieNotFoundException("Movie with ID " + id + " not found"));
         movieService.deleteMovie(id);
         return ResponseEntity.noContent().build();
     }
 
     //-----------------------------------------------------------------
 
+    // Se comprueba si existe la película y se actualiza en la DB. Si no se encuentra, lanza una excepción MovieNotFoundException.
     @PutMapping("/{id}")
     public ResponseEntity<Movie> updateMovie(@PathVariable Long id, @RequestBody Movie updatedMovie) {
+        Movie movie = movieService.getMovieById(id)
+                .orElseThrow(() -> new MovieNotFoundException("Movie with ID " + id + " not found"));
         Optional<Movie> savedMovie = movieService.updateMovie(id, updatedMovie);
 
-        return savedMovie.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.status(HttpStatus.OK).body(savedMovie.get());
     }
 
 
     //-----------------------------------------------------------------
 
+
     // Endpoint para valorar una película de la DB
     @GetMapping("/vote/{id}/{rating}")
     public ResponseEntity<Movie> voteMovie(@PathVariable Long id, @PathVariable double rating) {
+        Movie movie = movieService.getMovieById(id)
+                .orElseThrow(() -> new MovieNotFoundException("Movie with ID " + id + " not found"));
         Optional<Movie> ratedMovie = movieService.voteMovie(id, rating);
 
-        return ratedMovie.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.status(HttpStatus.OK).body(ratedMovie.get());
     }
 
 }

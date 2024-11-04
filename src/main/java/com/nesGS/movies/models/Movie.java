@@ -14,6 +14,7 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     @NotNull(message = "Title cannot be null")
     @Size(min = 1, max = 100, message = "Title must not exceed 100 characters")
     private String title;
