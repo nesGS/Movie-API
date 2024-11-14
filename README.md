@@ -1,6 +1,9 @@
-**Néstor GS**
+### **Néstor GS**
+(Manejo de excepciones y ResponseEntity)
 
-# APIRest para Base de Datos de Películas
+
+# APIRest para Base de Datos de Películas 
+
 
 Ejemplo de una API REST desarrollada con las siguientes características:
 
